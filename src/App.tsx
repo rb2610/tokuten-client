@@ -1,7 +1,10 @@
 import * as React from 'react';
-import './App.css';
 
-import logo from './logo.svg';
+require('./styles/App.css');
+
+// TODO: Fix this at some point:
+// import logo from '../images/logo.svg';
+const logo = require('./images/logo.svg');
 
 class App extends React.Component {
   public render() {
