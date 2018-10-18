@@ -1,4 +1,4 @@
-import App from '../src/App';
+import Tokuten from '../src/Tokuten';
 
 import { expect } from "chai";
 
@@ -6,7 +6,7 @@ import * as React from 'react';
 
 import { shallow } from "enzyme";
 
-const wrapper = shallow(<App />);
+const wrapper = shallow(<Tokuten />);
 
 describe("App", () => {
   it("renders without crashing", () => {
