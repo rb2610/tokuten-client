@@ -2,7 +2,7 @@ import axios from "axios";
 import { Cell, Column, Table } from "fixed-data-table-2";
 import * as React from "react";
 
-require("node_modules/fixed-data-table-2/dist/fixed-data-table.min.css");
+require("fixed-data-table-2/dist/fixed-data-table.min.css");
 require("./styles/TestTable.css");
 
 interface ITestScore {
