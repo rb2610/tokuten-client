@@ -27,7 +27,9 @@ class TestTable extends React.Component<any, IState> {
   public componentDidMount() {
     axios.get("/api/scoreData").then(response => {
       const responseData: ITestScore[] = response.data.data;
-      this.setState({ data: responseData });
+      if(responseData) {
+        this.setState({ data: responseData });
+      }
     });
   }
 
