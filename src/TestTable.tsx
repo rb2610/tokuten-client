@@ -15,6 +15,8 @@ interface IState {
   data: ITestScore[];
 }
 
+const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
+
 class TestTable extends React.Component<any, IState> {
   public state = {
     data: Array<ITestScore>()
@@ -25,7 +27,7 @@ class TestTable extends React.Component<any, IState> {
   }
 
   public componentDidMount() {
-    axios.get("/api/scoreData").then(response => {
+    axios.get(`${apiUrl}/api/scoreData`).then(response => {
       const responseData: ITestScore[] = response.data.data;
       if(responseData) {
         this.setState({ data: responseData });
