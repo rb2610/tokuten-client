@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "node --require dotenv/config node_modules/serve/bin/serve.js -s build",
+    "start": "node --require dotenv/config node_modules/serve/bin/serve.js -s -p 3000 build",
     "dev": "node --require dotenv/config scripts/start.js",
     "build": "node scripts/build.js",
     "heroku-postbuild": "npm run build",
@@ -89,6 +89,8 @@
     "chromedriver": "^2.42.0",
     "enzyme-adapter-react-16": "^1.6.0",
     "ignore-styles": "^5.0.1",
+    "mock-http-server": "^1.1.0",
+    "mockttp": "^0.11.0",
     "nightwatch": "^1.0.11",
     "typescript": "^3.1.3"
   },
