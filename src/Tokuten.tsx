@@ -15,7 +15,7 @@ class Tokuten extends React.Component {
         <header className="main-header">
           <h1 className="main-title">Tokuten</h1>
         </header>
-        <p className="main-intro">Scores and stuff.</p>
+        <p className="main-intro">Test Scores and stuff.</p>
         <div style={{ display: "flex", flexFlow: "column", height: "100%", width: "100%" }}>
           <div style={{ flex: "1 1 auto" }}>
             <ContainerDimensions>
