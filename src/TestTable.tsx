@@ -46,7 +46,7 @@ class TestTable extends React.Component<any, IState> {
             id="new-player-name-field"
             type="text"
             value={this.state.formName}
-            placeholder="New Name"
+            placeholder="Player Name"
             onChange={this.onNameChange(this)}
           />
           <input id="new-player-submit" type="submit" value="Add Player" />
