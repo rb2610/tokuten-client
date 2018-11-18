@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "node --require dotenv/config node_modules/serve/bin/serve.js -s -p 3000 build",
-    "dev": "node --require dotenv/config scripts/start.js",
+    "start": "scripts/start.sh",
+    "dev": "node --require dotenv/config scripts/dev.js",
     "build": "node scripts/build.js",
     "heroku-postbuild": "npm run build",
     "watch-tests": "tsc -w -p tsconfig.test.json",
