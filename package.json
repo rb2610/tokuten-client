@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "scripts/start.sh",
+    "start": "bash scripts/start.sh",
     "dev": "node --require dotenv/config scripts/dev.js",
     "build": "node scripts/build.js",
     "heroku-postbuild": "npm run build",
