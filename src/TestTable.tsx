@@ -9,6 +9,7 @@ interface ITestScore {
   id: number;
   name: string;
   wins: number;
+  played: number;
 }
 
 interface IState {
@@ -76,6 +77,13 @@ class TestTable extends React.Component<any, IState> {
             flexGrow={1}
             width={50}
           />
+          <Column
+            columnKey="played"
+            header={<Cell>Played</Cell>}
+            cell={this.cellPlayedMapping}
+            flexGrow={1}
+            width={50}
+          />
         </Table>
       </div>
     );
@@ -104,7 +112,7 @@ class TestTable extends React.Component<any, IState> {
   private handleSubmit(event: any, context: TestTable) {
     event.preventDefault();
     axios
-      .post(`${apiUrl}/api/scoreData`, { name: this.state.formName, wins: 0 })
+      .post(`${apiUrl}/api/scoreData`, { name: this.state.formName })
       .then(() => this.getData());
   }
 
@@ -124,6 +132,16 @@ class TestTable extends React.Component<any, IState> {
     return (
       <Cell className={`tt-wins-${props.rowIndex}`}>
         {this.state.data.length > 0 ? this.state.data[props.rowIndex].wins : ""}
+      </Cell>
+    );
+  };
+
+  private cellPlayedMapping = (props: any) => {
+    return (
+      <Cell className={`tt-played-${props.rowIndex}`}>
+        {this.state.data.length > 0
+          ? this.state.data[props.rowIndex].played
+          : ""}
       </Cell>
     );
   };

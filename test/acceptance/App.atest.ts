@@ -23,12 +23,14 @@ module.exports = {
           {
             id: 1,
             name: "Foo",
-            wins: 5
+            wins: 5,
+            played: 7
           },
           {
             id: 2,
             name: "Roo",
-            wins: 2
+            wins: 2,
+            played: 7
           }
         ]
       }),
@@ -39,8 +41,10 @@ module.exports = {
     client.expect.element(".test-table").to.be.present;
     client.expect.element(".tt-name-0").text.to.equal("Foo");
     client.expect.element(".tt-wins-0").text.to.equal("5");
+    client.expect.element(".tt-played-0").text.to.equal("7");
     client.expect.element(".tt-name-1").text.to.equal("Roo");
     client.expect.element(".tt-wins-1").text.to.equal("2");
+    client.expect.element(".tt-played-1").text.to.equal("7");
     client.end();
   },
 
@@ -52,12 +56,14 @@ module.exports = {
           {
             id: 1,
             name: "Foo",
-            wins: 5
+            wins: 5,
+            played: 7
           },
           {
             id: 2,
             name: "Roo",
-            wins: 2
+            wins: 2,
+            played: 7
           }
         ]
       }),
@@ -71,7 +77,8 @@ module.exports = {
           {
             id: 3,
             name: "Bob",
-            wins: 0
+            wins: 0,
+            played: 0
           }
         ]
       }),
