@@ -15,6 +15,7 @@ interface ITestScore {
 interface IState {
   data: ITestScore[];
   formName: string;
+  formPlayed: number;
   formWins: number;
 }
 
@@ -24,6 +25,7 @@ class TestTable extends React.Component<any, IState> {
   public state = {
     data: Array<ITestScore>(),
     formName: "",
+    formPlayed: 0,
     formWins: 0
   };
 
@@ -42,7 +44,7 @@ class TestTable extends React.Component<any, IState> {
 
     return (
       <div>
-        <form onSubmit={this.onSubmit(this)}>
+        <form onSubmit={this.onNewPlayerSubmit(this)}>
           <input
             id="new-player-name-field"
             type="text"
@@ -52,6 +54,16 @@ class TestTable extends React.Component<any, IState> {
           />
           <input id="new-player-submit" type="submit" value="Add Player" />
         </form>
+        {/* <form onSubmit={this.onNewGameSubmit(this)}>
+          <input
+            id="new-game-wins-field"
+            type="text"
+            value={this.state.formName}
+            placeholder="Player Name"
+            onChange={this.onNameChange(this)}
+          />
+          <input id="new-player-submit" type="submit" value="Add Player" />
+        </form> */}
         <Table
           className={"test-table"}
           rowHeight={rowHeight}
@@ -90,7 +102,7 @@ class TestTable extends React.Component<any, IState> {
   }
 
   private getData() {
-    axios.get(`${apiUrl}/api/scoreData`).then(response => {
+    axios.get(`${apiUrl}/scoreTable/group/1/game/1`).then(response => {
       const responseData: ITestScore[] = response.data.data;
 
       if (responseData) {
@@ -109,15 +121,18 @@ class TestTable extends React.Component<any, IState> {
     return (event: any) => this.handleNameChange(event, context);
   }
 
-  private handleSubmit(event: any, context: TestTable) {
+  private handleNewPlayerSubmit(event: any, context: TestTable) {
     event.preventDefault();
     axios
-      .post(`${apiUrl}/api/scoreData`, { name: this.state.formName })
-      .then(() => this.getData());
+      .post(`${apiUrl}/player?groupId=1&gameId=1`, { name: this.state.formName })
+      .then(() => {
+        this.setState({ formName: "" });
+        this.getData();
+      });
   }
 
-  private onSubmit(context: TestTable) {
-    return (event: any) => this.handleSubmit(event, context);
+  private onNewPlayerSubmit(context: TestTable) {
+    return (event: any) => this.handleNewPlayerSubmit(event, context);
   }
 
   private cellNameMapping = (props: any) => {
