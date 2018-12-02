@@ -14,6 +14,8 @@ interface ITestScore {
 
 interface IState {
   data: ITestScore[];
+  formGame: string;
+  formGroup: string;
   formName: string;
   formPlayed: number;
   formWins: number;
@@ -24,6 +26,8 @@ const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
 class TestTable extends React.Component<any, IState> {
   public state = {
     data: Array<ITestScore>(),
+    formGame: "",
+    formGroup: "",
     formName: "",
     formPlayed: 0,
     formWins: 0
@@ -54,16 +58,26 @@ class TestTable extends React.Component<any, IState> {
           />
           <input id="new-player-submit" type="submit" value="Add Player" />
         </form>
-        {/* <form onSubmit={this.onNewGameSubmit(this)}>
+        <form onSubmit={this.onNewGameSubmit(this)}>
           <input
-            id="new-game-wins-field"
+            id="new-game-name-field"
             type="text"
-            value={this.state.formName}
-            placeholder="Player Name"
-            onChange={this.onNameChange(this)}
+            value={this.state.formGame}
+            placeholder="Game Name"
+            onChange={this.onGameChange(this)}
           />
-          <input id="new-player-submit" type="submit" value="Add Player" />
-        </form> */}
+          <input id="new-game-submit" type="submit" value="Add Game" />
+        </form>
+        <form onSubmit={this.onNewGroupSubmit(this)}>
+          <input
+            id="new-group-name-field"
+            type="text"
+            value={this.state.formGroup}
+            placeholder="Group Name"
+            onChange={this.onGroupChange(this)}
+          />
+          <input id="new-group-submit" type="submit" value="Add Group" />
+        </form>
         <Table
           className={"test-table"}
           rowHeight={rowHeight}
@@ -121,10 +135,32 @@ class TestTable extends React.Component<any, IState> {
     return (event: any) => this.handleNameChange(event, context);
   }
 
+  private handleGameChange(event: any, context: TestTable) {
+    if (event.target) {
+      context.setState({ formGame: event.target.value });
+    }
+  }
+
+  private onGameChange(context: TestTable) {
+    return (event: any) => this.handleGameChange(event, context);
+  }
+
+  private handleGroupChange(event: any, context: TestTable) {
+    if (event.target) {
+      context.setState({ formGroup: event.target.value });
+    }
+  }
+
+  private onGroupChange(context: TestTable) {
+    return (event: any) => this.handleGroupChange(event, context);
+  }
+
   private handleNewPlayerSubmit(event: any, context: TestTable) {
     event.preventDefault();
     axios
-      .post(`${apiUrl}/player?groupId=1&gameId=1`, { name: this.state.formName })
+      .post(`${apiUrl}/player?groupId=1&gameId=1`, {
+        name: this.state.formName
+      })
       .then(() => {
         this.setState({ formName: "" });
         this.getData();
@@ -133,6 +169,38 @@ class TestTable extends React.Component<any, IState> {
 
   private onNewPlayerSubmit(context: TestTable) {
     return (event: any) => this.handleNewPlayerSubmit(event, context);
+  }
+
+  private handleNewGameSubmit(event: any, context: TestTable) {
+    event.preventDefault();
+    axios
+      .post(`${apiUrl}/game`, {
+        name: this.state.formGame
+      })
+      .then(() => {
+        this.setState({ formGame: "" });
+        this.getData();
+      });
+  }
+
+  private onNewGameSubmit(context: TestTable) {
+    return (event: any) => this.handleNewGameSubmit(event, context);
+  }
+
+  private handleNewGroupSubmit(event: any, context: TestTable) {
+    event.preventDefault();
+    axios
+      .post(`${apiUrl}/group`, {
+        name: this.state.formGroup
+      })
+      .then(() => {
+        this.setState({ formGroup: "" });
+        this.getData();
+      });
+  }
+
+  private onNewGroupSubmit(context: TestTable) {
+    return (event: any) => this.handleNewGroupSubmit(event, context);
   }
 
   private cellNameMapping = (props: any) => {
