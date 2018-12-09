@@ -1,6 +1,6 @@
 import * as React from "react";
 import ContainerDimensions from "react-container-dimensions";
-import TestTable from "./TestTable";
+import ScoreTable from "./ScoreTable";
 
 require("./styles/Tokuten.css");
 
@@ -19,7 +19,7 @@ class Tokuten extends React.Component {
         <div style={{ display: "flex", flexFlow: "column", height: "100%", width: "100%" }}>
           <div style={{ flex: "1 1 auto" }}>
             <ContainerDimensions>
-              <TestTable />
+              <ScoreTable />
             </ContainerDimensions>
           </div>
         </div>

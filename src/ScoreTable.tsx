@@ -23,7 +23,7 @@ interface IState {
 
 const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-class TestTable extends React.Component<any, IState> {
+class ScoreTable extends React.Component<any, IState> {
   public state = {
     data: Array<ITestScore>(),
     formGame: "",
@@ -125,37 +125,37 @@ class TestTable extends React.Component<any, IState> {
     });
   }
 
-  private handleNameChange(event: any, context: TestTable) {
+  private handleNameChange(event: any, context: ScoreTable) {
     if (event.target) {
       context.setState({ formName: event.target.value });
     }
   }
 
-  private onNameChange(context: TestTable) {
+  private onNameChange(context: ScoreTable) {
     return (event: any) => this.handleNameChange(event, context);
   }
 
-  private handleGameChange(event: any, context: TestTable) {
+  private handleGameChange(event: any, context: ScoreTable) {
     if (event.target) {
       context.setState({ formGame: event.target.value });
     }
   }
 
-  private onGameChange(context: TestTable) {
+  private onGameChange(context: ScoreTable) {
     return (event: any) => this.handleGameChange(event, context);
   }
 
-  private handleGroupChange(event: any, context: TestTable) {
+  private handleGroupChange(event: any, context: ScoreTable) {
     if (event.target) {
       context.setState({ formGroup: event.target.value });
     }
   }
 
-  private onGroupChange(context: TestTable) {
+  private onGroupChange(context: ScoreTable) {
     return (event: any) => this.handleGroupChange(event, context);
   }
 
-  private handleNewPlayerSubmit(event: any, context: TestTable) {
+  private handleNewPlayerSubmit(event: any, context: ScoreTable) {
     event.preventDefault();
     axios
       .post(`${apiUrl}/player?groupId=1&gameId=1`, {
@@ -167,11 +167,11 @@ class TestTable extends React.Component<any, IState> {
       });
   }
 
-  private onNewPlayerSubmit(context: TestTable) {
+  private onNewPlayerSubmit(context: ScoreTable) {
     return (event: any) => this.handleNewPlayerSubmit(event, context);
   }
 
-  private handleNewGameSubmit(event: any, context: TestTable) {
+  private handleNewGameSubmit(event: any, context: ScoreTable) {
     event.preventDefault();
     axios
       .post(`${apiUrl}/game`, {
@@ -183,11 +183,11 @@ class TestTable extends React.Component<any, IState> {
       });
   }
 
-  private onNewGameSubmit(context: TestTable) {
+  private onNewGameSubmit(context: ScoreTable) {
     return (event: any) => this.handleNewGameSubmit(event, context);
   }
 
-  private handleNewGroupSubmit(event: any, context: TestTable) {
+  private handleNewGroupSubmit(event: any, context: ScoreTable) {
     event.preventDefault();
     axios
       .post(`${apiUrl}/group`, {
@@ -199,7 +199,7 @@ class TestTable extends React.Component<any, IState> {
       });
   }
 
-  private onNewGroupSubmit(context: TestTable) {
+  private onNewGroupSubmit(context: ScoreTable) {
     return (event: any) => this.handleNewGroupSubmit(event, context);
   }
 
@@ -228,6 +228,14 @@ class TestTable extends React.Component<any, IState> {
       </Cell>
     );
   };
+
+  // private cellRoundParticipantMapping = (props: any) => {
+  //   return (
+  //     <Cell className={`tt-round-participant-${props.rowIndex}`}>
+  //       <input type="checkbox" checked={this.state.isParticipant} />
+  //     </Cell>
+  //   );
+  // };
 }
 
-export default TestTable;
+export default ScoreTable;
