@@ -5,32 +5,50 @@ import * as React from "react";
 require("fixed-data-table-2/dist/fixed-data-table.min.css");
 require("./styles/TestTable.css");
 
-interface ITestScore {
+interface IScore {
   id: number;
   name: string;
   wins: number;
   played: number;
 }
 
+interface IGame {
+  id: number;
+  name: string;
+}
+
+interface IGroup {
+  id: number;
+  name: string;
+}
+
 interface IState {
-  data: ITestScore[];
+  data: IScore[];
   formGame: string;
   formGroup: string;
   formName: string;
   formPlayed: number;
   formWins: number;
+  games: IGame[];
+  groups: IGroup[];
+  selectedGameId: number;
+  selectedGroupId: number;
 }
 
 const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
 class ScoreTable extends React.Component<any, IState> {
   public state = {
-    data: Array<ITestScore>(),
+    data: Array<IScore>(),
     formGame: "",
     formGroup: "",
     formName: "",
     formPlayed: 0,
-    formWins: 0
+    formWins: 0,
+    games: Array<IGame>(),
+    groups: Array<IGroup>(),
+    selectedGameId: 1,
+    selectedGroupId: 1
   };
 
   constructor(props: any) {
@@ -38,7 +56,9 @@ class ScoreTable extends React.Component<any, IState> {
   }
 
   public componentDidMount() {
-    this.getData();
+    this.loadScores();
+    this.loadGames();
+    this.loadGroups();
   }
 
   public render() {
@@ -48,6 +68,26 @@ class ScoreTable extends React.Component<any, IState> {
 
     return (
       <div>
+        <select
+          value={this.state.selectedGroupId}
+          onChange={this.onSelectedGroupChange(this)}
+        >
+          {this.state.groups.map(group => (
+            <option key={group.id} value={group.id}>
+              {group.name}
+            </option>
+          ))}
+        </select>
+        <select
+          value={this.state.selectedGameId}
+          onChange={this.onSelectedGameChange(this)}
+        >
+          {this.state.games.map(game => (
+            <option key={game.id} value={game.id}>
+              {game.name}
+            </option>
+          ))}
+        </select>
         <form onSubmit={this.onNewPlayerSubmit(this)}>
           <input
             id="new-player-name-field"
@@ -115,14 +155,60 @@ class ScoreTable extends React.Component<any, IState> {
     );
   }
 
-  private getData() {
-    axios.get(`${apiUrl}/scoreTable/group/1/game/1`).then(response => {
-      const responseData: ITestScore[] = response.data.data;
+  private loadScores() {
+    axios
+      .get(
+        `${apiUrl}/scores/group/${this.state.selectedGroupId}/game/${
+          this.state.selectedGameId
+        }`
+      )
+      .then(response => {
+        const responseData: IScore[] = response.data.data;
+
+        if (responseData) {
+          this.setState({ data: responseData });
+        }
+      });
+  }
+
+  private loadGames() {
+    axios.get(`${apiUrl}/games`).then(response => {
+      const responseData: IGame[] = response.data.data;
 
       if (responseData) {
-        this.setState({ data: responseData });
+        this.setState({ games: responseData });
       }
     });
+  }
+
+  private loadGroups() {
+    axios.get(`${apiUrl}/groups`).then(response => {
+      const responseData: IGroup[] = response.data.data;
+
+      if (responseData) {
+        this.setState({ groups: responseData });
+      }
+    });
+  }
+
+  private handleSelectedGameChange(event: any, context: ScoreTable) {
+    if (event.target) {
+      context.setState({ selectedGameId: event.target.value }, context.loadScores);
+    }
+  }
+
+  private onSelectedGameChange(context: ScoreTable) {
+    return (event: any) => this.handleSelectedGameChange(event, context);
+  }
+
+  private handleSelectedGroupChange(event: any, context: ScoreTable) {
+    if (event.target) {
+      context.setState({ selectedGroupId: event.target.value }, context.loadScores);
+    }
+  }
+
+  private onSelectedGroupChange(context: ScoreTable) {
+    return (event: any) => this.handleSelectedGroupChange(event, context);
   }
 
   private handleNameChange(event: any, context: ScoreTable) {
@@ -135,35 +221,35 @@ class ScoreTable extends React.Component<any, IState> {
     return (event: any) => this.handleNameChange(event, context);
   }
 
-  private handleGameChange(event: any, context: ScoreTable) {
+  private handleNewGameNameChange(event: any, context: ScoreTable) {
     if (event.target) {
       context.setState({ formGame: event.target.value });
     }
   }
 
   private onGameChange(context: ScoreTable) {
-    return (event: any) => this.handleGameChange(event, context);
+    return (event: any) => this.handleNewGameNameChange(event, context);
   }
 
-  private handleGroupChange(event: any, context: ScoreTable) {
+  private handleNewGroupNameChange(event: any, context: ScoreTable) {
     if (event.target) {
       context.setState({ formGroup: event.target.value });
     }
   }
 
   private onGroupChange(context: ScoreTable) {
-    return (event: any) => this.handleGroupChange(event, context);
+    return (event: any) => this.handleNewGroupNameChange(event, context);
   }
 
   private handleNewPlayerSubmit(event: any, context: ScoreTable) {
     event.preventDefault();
     axios
-      .post(`${apiUrl}/player?groupId=1&gameId=1`, {
+      .post(`${apiUrl}/players?groupId=1&gameId=1`, {
         name: this.state.formName
       })
       .then(() => {
         this.setState({ formName: "" });
-        this.getData();
+        this.loadScores();
       });
   }
 
@@ -174,12 +260,12 @@ class ScoreTable extends React.Component<any, IState> {
   private handleNewGameSubmit(event: any, context: ScoreTable) {
     event.preventDefault();
     axios
-      .post(`${apiUrl}/game`, {
+      .post(`${apiUrl}/games`, {
         name: this.state.formGame
       })
       .then(() => {
         this.setState({ formGame: "" });
-        this.getData();
+        this.loadScores();
       });
   }
 
@@ -190,12 +276,12 @@ class ScoreTable extends React.Component<any, IState> {
   private handleNewGroupSubmit(event: any, context: ScoreTable) {
     event.preventDefault();
     axios
-      .post(`${apiUrl}/group`, {
+      .post(`${apiUrl}/groups`, {
         name: this.state.formGroup
       })
       .then(() => {
         this.setState({ formGroup: "" });
-        this.getData();
+        this.loadScores();
       });
   }
 
