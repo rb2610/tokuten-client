@@ -345,7 +345,7 @@ class ScoreTable extends React.Component<any, IState> {
             .filter(player => player.isInGame)
             .map(participant => ({
               id: participant.id,
-              is_winner: participant.isWinner
+              is_winner: participant.isWinner || false // TODO: Make server tolerant
             }))
         }
       )
@@ -356,14 +356,30 @@ class ScoreTable extends React.Component<any, IState> {
   };
 
   private onToggleParticipation = (playerId: number) => (event: any) => {
+    const row: IScore | undefined = this.state.data.get(playerId);
+
+    if (row === undefined) {
+      return;
+    }
+
+    row.isInGame = event.target.checked;
+
     this.setState({
-      data: {
-        ...this.state.data,
-        playerId: {
-          ...this.state.data.get(playerId),
-          isInGame: event.target.value
-        }
-      }
+      data: this.state.data.set(playerId, row)
+    });
+  };
+
+  private onToggleVictory = (playerId: number) => (event: any) => {
+    const row: IScore | undefined = this.state.data.get(playerId);
+
+    if (row === undefined) {
+      return;
+    }
+
+    row.isWinner = event.target.checked;
+
+    this.setState({
+      data: this.state.data.set(playerId, row)
     });
   };
 
@@ -398,7 +414,8 @@ class ScoreTable extends React.Component<any, IState> {
   };
 
   private cellWinRatioMapping = (props: any) => {
-    return <Cell className={`tt-win-ratio-${props.rowIndex}`}>
+    return (
+      <Cell className={`tt-win-ratio-${props.rowIndex}`}>
         {this.state.data.size > 0 &&
         Array.from(this.state.data.values())[props.rowIndex].played > 0
           ? (
@@ -406,15 +423,20 @@ class ScoreTable extends React.Component<any, IState> {
               Array.from(this.state.data.values())[props.rowIndex].played
             ).toFixed(2)
           : "-"}
-      </Cell>;
+      </Cell>
+    );
   };
 
   private cellRoundParticipantMapping = (props: any) => {
-    return <Cell className={`tt-round-participant-${props.rowIndex}`}>
+    return (
+      <Cell className={`tt-round-participant-${props.rowIndex}`}>
         {this.state.data.size > 0 ? (
           <input
             type="checkbox"
-          checked={Array.from(this.state.data.values())[props.rowIndex].isInGame}
+            checked={
+              Array.from(this.state.data.values())[props.rowIndex].isInGame ||
+              false
+            }
             onChange={this.onToggleParticipation(
               Array.from(this.state.data.values())[props.rowIndex].id
             )}
@@ -422,22 +444,29 @@ class ScoreTable extends React.Component<any, IState> {
         ) : (
           "-"
         )}
-      </Cell>;
+      </Cell>
+    );
   };
 
   private cellRoundWinnerMapping = (props: any) => {
-    return <Cell className={`tt-round-winner-${props.rowIndex}`}>
+    return (
+      <Cell className={`tt-round-winner-${props.rowIndex}`}>
         {this.state.data.size > 0 ? (
           <input
             type="checkbox"
             checked={
-              Array.from(this.state.data.values())[props.rowIndex].isWinner
+              Array.from(this.state.data.values())[props.rowIndex].isWinner ||
+              false
             }
+            onChange={this.onToggleVictory(
+              Array.from(this.state.data.values())[props.rowIndex].id
+            )}
           />
         ) : (
           "-"
         )}
-      </Cell>;
+      </Cell>
+    );
   };
 }
 
