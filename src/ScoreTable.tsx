@@ -193,7 +193,12 @@ class ScoreTable extends React.Component<any, IState> {
       )
       .then(response => {
         const responseData: Map<number, IScore> = new Map(
-          response.data.data.map((row: IScore) => [row.id, row])
+          response.data.data
+            .sort(
+              (row1: IScore, row2: IScore) =>
+                (row2.wins / row2.played || 0) - (row1.wins / row1.played || 0)
+            )
+            .map((row: IScore) => [row.id, row])
         );
 
         if (responseData) {
