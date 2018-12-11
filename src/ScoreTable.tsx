@@ -10,6 +10,8 @@ interface IScore {
   name: string;
   wins: number;
   played: number;
+  isInGame: boolean;
+  isWinner: boolean;
 }
 
 interface IGame {
@@ -23,7 +25,7 @@ interface IGroup {
 }
 
 interface IState {
-  data: IScore[];
+  data: Map<number, IScore>;
   formGame: string;
   formGroup: string;
   formName: string;
@@ -39,7 +41,7 @@ const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
 class ScoreTable extends React.Component<any, IState> {
   public state = {
-    data: Array<IScore>(),
+    data: new Map<number, IScore>(),
     formGame: "",
     formGroup: "",
     formName: "",
@@ -64,7 +66,7 @@ class ScoreTable extends React.Component<any, IState> {
   public render() {
     const headerHeight = 50;
     const rowHeight = 50;
-    const rowsCount = this.state.data.length;
+    const rowsCount = this.state.data.size;
 
     return (
       <div>
@@ -118,6 +120,12 @@ class ScoreTable extends React.Component<any, IState> {
           />
           <input id="new-group-submit" type="submit" value="Add Group" />
         </form>
+        <input
+          id="new-round-submit"
+          type="button"
+          value="Add Round"
+          onClick={this.onNewRoundSubmit}
+        />
         <Table
           className={"test-table"}
           rowHeight={rowHeight}
@@ -150,6 +158,27 @@ class ScoreTable extends React.Component<any, IState> {
             flexGrow={1}
             width={50}
           />
+          <Column
+            columnKey="win-ratio"
+            header={<Cell>Win Ratio</Cell>}
+            cell={this.cellWinRatioMapping}
+            flexGrow={1}
+            width={50}
+          />
+          <Column
+            columnKey="participant"
+            header={<Cell>In Current Round</Cell>}
+            cell={this.cellRoundParticipantMapping}
+            flexGrow={1}
+            width={50}
+          />
+          <Column
+            columnKey="winner"
+            header={<Cell>Won Current Round</Cell>}
+            cell={this.cellRoundWinnerMapping}
+            flexGrow={1}
+            width={50}
+          />
         </Table>
       </div>
     );
@@ -163,10 +192,14 @@ class ScoreTable extends React.Component<any, IState> {
         }`
       )
       .then(response => {
-        const responseData: IScore[] = response.data.data;
+        const responseData: Map<number, IScore> = new Map(
+          response.data.data.map((row: IScore) => [row.id, row])
+        );
 
         if (responseData) {
-          this.setState({ data: responseData });
+          this.setState({
+            data: responseData
+          });
         }
       });
   }
@@ -193,7 +226,10 @@ class ScoreTable extends React.Component<any, IState> {
 
   private handleSelectedGameChange(event: any, context: ScoreTable) {
     if (event.target) {
-      context.setState({ selectedGameId: event.target.value }, context.loadScores);
+      context.setState(
+        { selectedGameId: event.target.value },
+        context.loadScores
+      );
     }
   }
 
@@ -203,7 +239,10 @@ class ScoreTable extends React.Component<any, IState> {
 
   private handleSelectedGroupChange(event: any, context: ScoreTable) {
     if (event.target) {
-      context.setState({ selectedGroupId: event.target.value }, context.loadScores);
+      context.setState(
+        { selectedGroupId: event.target.value },
+        context.loadScores
+      );
     }
   }
 
@@ -244,9 +283,14 @@ class ScoreTable extends React.Component<any, IState> {
   private handleNewPlayerSubmit(event: any, context: ScoreTable) {
     event.preventDefault();
     axios
-      .post(`${apiUrl}/players?groupId=1&gameId=1`, {
-        name: this.state.formName
-      })
+      .post(
+        `${apiUrl}/players?groupId=${this.state.selectedGroupId}&gameId=${
+          this.state.selectedGameId
+        }`,
+        {
+          name: this.state.formName
+        }
+      )
       .then(() => {
         this.setState({ formName: "" });
         this.loadScores();
@@ -265,7 +309,7 @@ class ScoreTable extends React.Component<any, IState> {
       })
       .then(() => {
         this.setState({ formGame: "" });
-        this.loadScores();
+        this.loadGames();
       });
   }
 
@@ -281,7 +325,7 @@ class ScoreTable extends React.Component<any, IState> {
       })
       .then(() => {
         this.setState({ formGroup: "" });
-        this.loadScores();
+        this.loadGroups();
       });
   }
 
@@ -289,10 +333,46 @@ class ScoreTable extends React.Component<any, IState> {
     return (event: any) => this.handleNewGroupSubmit(event, context);
   }
 
+  private onNewRoundSubmit = (event: any) => {
+    event.preventDefault();
+    axios
+      .post(
+        `${apiUrl}/rounds?groupId=${this.state.selectedGroupId}&gameId=${
+          this.state.selectedGameId
+        }`,
+        {
+          participants: Array.from(this.state.data.values())
+            .filter(player => player.isInGame)
+            .map(participant => ({
+              id: participant.id,
+              is_winner: participant.isWinner
+            }))
+        }
+      )
+      .then(() => {
+        // this.setState({ formGroup: "" });
+        this.loadScores();
+      });
+  };
+
+  private onToggleParticipation = (playerId: number) => (event: any) => {
+    this.setState({
+      data: {
+        ...this.state.data,
+        playerId: {
+          ...this.state.data.get(playerId),
+          isInGame: event.target.value
+        }
+      }
+    });
+  };
+
   private cellNameMapping = (props: any) => {
     return (
       <Cell className={`tt-name-${props.rowIndex}`}>
-        {this.state.data.length > 0 ? this.state.data[props.rowIndex].name : ""}
+        {this.state.data.size > 0
+          ? Array.from(this.state.data.values())[props.rowIndex].name
+          : "-"}
       </Cell>
     );
   };
@@ -300,7 +380,9 @@ class ScoreTable extends React.Component<any, IState> {
   private cellWinsMapping = (props: any) => {
     return (
       <Cell className={`tt-wins-${props.rowIndex}`}>
-        {this.state.data.length > 0 ? this.state.data[props.rowIndex].wins : ""}
+        {this.state.data.size > 0
+          ? Array.from(this.state.data.values())[props.rowIndex].wins
+          : "-"}
       </Cell>
     );
   };
@@ -308,20 +390,55 @@ class ScoreTable extends React.Component<any, IState> {
   private cellPlayedMapping = (props: any) => {
     return (
       <Cell className={`tt-played-${props.rowIndex}`}>
-        {this.state.data.length > 0
-          ? this.state.data[props.rowIndex].played
-          : ""}
+        {this.state.data.size > 0
+          ? Array.from(this.state.data.values())[props.rowIndex].played
+          : "-"}
       </Cell>
     );
   };
 
-  // private cellRoundParticipantMapping = (props: any) => {
-  //   return (
-  //     <Cell className={`tt-round-participant-${props.rowIndex}`}>
-  //       <input type="checkbox" checked={this.state.isParticipant} />
-  //     </Cell>
-  //   );
-  // };
+  private cellWinRatioMapping = (props: any) => {
+    return <Cell className={`tt-win-ratio-${props.rowIndex}`}>
+        {this.state.data.size > 0 &&
+        Array.from(this.state.data.values())[props.rowIndex].played > 0
+          ? (
+              Array.from(this.state.data.values())[props.rowIndex].wins /
+              Array.from(this.state.data.values())[props.rowIndex].played
+            ).toFixed(2)
+          : "-"}
+      </Cell>;
+  };
+
+  private cellRoundParticipantMapping = (props: any) => {
+    return <Cell className={`tt-round-participant-${props.rowIndex}`}>
+        {this.state.data.size > 0 ? (
+          <input
+            type="checkbox"
+          checked={Array.from(this.state.data.values())[props.rowIndex].isInGame}
+            onChange={this.onToggleParticipation(
+              Array.from(this.state.data.values())[props.rowIndex].id
+            )}
+          />
+        ) : (
+          "-"
+        )}
+      </Cell>;
+  };
+
+  private cellRoundWinnerMapping = (props: any) => {
+    return <Cell className={`tt-round-winner-${props.rowIndex}`}>
+        {this.state.data.size > 0 ? (
+          <input
+            type="checkbox"
+            checked={
+              Array.from(this.state.data.values())[props.rowIndex].isWinner
+            }
+          />
+        ) : (
+          "-"
+        )}
+      </Cell>;
+  };
 }
 
 export default ScoreTable;
