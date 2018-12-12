@@ -194,10 +194,11 @@ class ScoreTable extends React.Component<any, IState> {
       .then(response => {
         const responseData: Map<number, IScore> = new Map(
           response.data.data
-            .sort(
-              (row1: IScore, row2: IScore) =>
-                (row2.wins / row2.played || 0) - (row1.wins / row1.played || 0)
-            )
+            .sort((row1: IScore, row2: IScore) => {
+              // tslint:disable-next-line:no-console
+              console.log(`row2.wins / row2.played: ${row2.wins / row2.played} --- row1.wins / row1.played: ${row1.wins / row1.played} --- --- --- Result: ${(row2.wins / row2.played || -1) - (row1.wins / row1.played || -1)}`);
+              return (row2.wins / row2.played || -Number.MAX_SAFE_INTEGER) - (row1.wins / row1.played || -Number.MAX_SAFE_INTEGER);
+            })
             .map((row: IScore) => [row.id, row])
         );
 
@@ -423,10 +424,9 @@ class ScoreTable extends React.Component<any, IState> {
       <Cell className={`tt-win-ratio-${props.rowIndex}`}>
         {this.state.data.size > 0 &&
         Array.from(this.state.data.values())[props.rowIndex].played > 0
-          ? (
-              Array.from(this.state.data.values())[props.rowIndex].wins /
-              Array.from(this.state.data.values())[props.rowIndex].played
-            ).toFixed(2)
+          ? `${(Array.from(this.state.data.values())[props.rowIndex].wins /
+              Array.from(this.state.data.values())[props.rowIndex].played) *
+              100}%`
           : "-"}
       </Cell>
     );
