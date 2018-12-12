@@ -1,6 +1,7 @@
+"use strict";
+
 import * as React from "react";
-import ContainerDimensions from "react-container-dimensions";
-import ScoreTable from "./ScoreTable";
+import Content from "./Content";
 
 require("./styles/Tokuten.css");
 
@@ -16,13 +17,7 @@ class Tokuten extends React.Component {
           <h1 className="main-title">Tokuten</h1>
         </header>
         <p className="main-intro">Scores and stuff.</p>
-        <div style={{ display: "flex", flexFlow: "column", height: "100%", width: "100%" }}>
-          <div style={{ flex: "1 1 auto" }}>
-            <ContainerDimensions>
-              <ScoreTable />
-            </ContainerDimensions>
-          </div>
-        </div>
+        <Content/>
       </div>
     );
   }

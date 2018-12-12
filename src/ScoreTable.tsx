@@ -1,54 +1,41 @@
+"use strict";
+
 import axios from "axios";
 import { Cell, Column, Table } from "fixed-data-table-2";
 import * as React from "react";
+import Game from "./dataTypes/Game";
+import Group from "./dataTypes/Group";
+import Score from "./dataTypes/Score";
+import NavSelectors from "./NavSelectors";
 
 require("fixed-data-table-2/dist/fixed-data-table.min.css");
 require("./styles/TestTable.css");
 
-interface IScore {
-  id: number;
-  name: string;
-  wins: number;
-  played: number;
-  isInGame: boolean;
-  isWinner: boolean;
-}
-
-interface IGame {
-  id: number;
-  name: string;
-}
-
-interface IGroup {
-  id: number;
-  name: string;
-}
-
-interface IState {
-  data: Map<number, IScore>;
+type State = {
+  data: Map<number, Score>;
   formGame: string;
   formGroup: string;
   formName: string;
   formPlayed: number;
   formWins: number;
-  games: IGame[];
-  groups: IGroup[];
+  games: Game[];
+  groups: Group[];
   selectedGameId: number;
   selectedGroupId: number;
-}
+};
 
 const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:3001";
 
-class ScoreTable extends React.Component<any, IState> {
+class ScoreTable extends React.Component<any, State> {
   public state = {
-    data: new Map<number, IScore>(),
+    data: new Map<number, Score>(),
     formGame: "",
     formGroup: "",
     formName: "",
     formPlayed: 0,
     formWins: 0,
-    games: Array<IGame>(),
-    groups: Array<IGroup>(),
+    games: Array<Game>(),
+    groups: Array<Group>(),
     selectedGameId: 1,
     selectedGroupId: 1
   };
@@ -70,26 +57,14 @@ class ScoreTable extends React.Component<any, IState> {
 
     return (
       <div>
-        <select
-          value={this.state.selectedGroupId}
-          onChange={this.onSelectedGroupChange(this)}
-        >
-          {this.state.groups.map(group => (
-            <option key={group.id} value={group.id}>
-              {group.name}
-            </option>
-          ))}
-        </select>
-        <select
-          value={this.state.selectedGameId}
-          onChange={this.onSelectedGameChange(this)}
-        >
-          {this.state.games.map(game => (
-            <option key={game.id} value={game.id}>
-              {game.name}
-            </option>
-          ))}
-        </select>
+        <NavSelectors
+          games={this.state.games}
+          groups={this.state.groups}
+          selectedGameId={this.state.selectedGameId}
+          selectedGroupId={this.state.selectedGroupId}
+          onSelectedGameChange={this.onSelectedGameChange(this)}
+          onSelectedGroupChange={this.onSelectedGroupChange(this)}
+        />
         <form onSubmit={this.onNewPlayerSubmit(this)}>
           <input
             id="new-player-name-field"
@@ -192,14 +167,14 @@ class ScoreTable extends React.Component<any, IState> {
         }`
       )
       .then(response => {
-        const responseData: Map<number, IScore> = new Map(
+        const responseData: Map<number, Score> = new Map(
           response.data.data
-            .sort((row1: IScore, row2: IScore) => {
-              // tslint:disable-next-line:no-console
-              console.log(`row2.wins / row2.played: ${row2.wins / row2.played} --- row1.wins / row1.played: ${row1.wins / row1.played} --- --- --- Result: ${(row2.wins / row2.played || -1) - (row1.wins / row1.played || -1)}`);
-              return (row2.wins / row2.played || -Number.MAX_SAFE_INTEGER) - (row1.wins / row1.played || -Number.MAX_SAFE_INTEGER);
-            })
-            .map((row: IScore) => [row.id, row])
+            .sort(
+              (row1: Score, row2: Score) =>
+                (row2.wins / row2.played || -Number.MAX_SAFE_INTEGER) -
+                (row1.wins / row1.played || -Number.MAX_SAFE_INTEGER)
+            )
+            .map((row: Score) => [row.id, row])
         );
 
         if (responseData) {
@@ -212,7 +187,7 @@ class ScoreTable extends React.Component<any, IState> {
 
   private loadGames() {
     axios.get(`${apiUrl}/games`).then(response => {
-      const responseData: IGame[] = response.data.data;
+      const responseData: Game[] = response.data.data;
 
       if (responseData) {
         this.setState({ games: responseData });
@@ -222,7 +197,7 @@ class ScoreTable extends React.Component<any, IState> {
 
   private loadGroups() {
     axios.get(`${apiUrl}/groups`).then(response => {
-      const responseData: IGroup[] = response.data.data;
+      const responseData: Group[] = response.data.data;
 
       if (responseData) {
         this.setState({ groups: responseData });
@@ -362,7 +337,7 @@ class ScoreTable extends React.Component<any, IState> {
   };
 
   private onToggleParticipation = (playerId: number) => (event: any) => {
-    const row: IScore | undefined = this.state.data.get(playerId);
+    const row: Score | undefined = this.state.data.get(playerId);
 
     if (row === undefined) {
       return;
@@ -376,7 +351,7 @@ class ScoreTable extends React.Component<any, IState> {
   };
 
   private onToggleVictory = (playerId: number) => (event: any) => {
-    const row: IScore | undefined = this.state.data.get(playerId);
+    const row: Score | undefined = this.state.data.get(playerId);
 
     if (row === undefined) {
       return;
