@@ -156,7 +156,7 @@ class ScoreTable extends React.Component<Props, State> {
         style={{
           color:
             winPercentage.length > 0
-              ? `hsl(${Number.parseInt(winPercentage, 10) * 1.2},100%,50%)`
+              ? `hsl(${Number.parseInt(winPercentage, 10) * 1.2},90%,35%)`
               : "black"
         }}
       >
