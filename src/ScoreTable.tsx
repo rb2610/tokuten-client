@@ -1,6 +1,6 @@
 "use strict";
 
-import { Cell, Column, Table } from "fixed-data-table-2";
+import { Cell, Column, ColumnCellProps, Table } from "fixed-data-table-2";
 import * as React from "react";
 import Score from "./dataTypes/Score";
 
@@ -18,7 +18,7 @@ type Props = {
 type State = {};
 
 class ScoreTable extends React.Component<Props, State> {
-  constructor(props: any) {
+  constructor(props: Props) {
     super(props);
   }
 
@@ -62,9 +62,9 @@ class ScoreTable extends React.Component<Props, State> {
             width={50}
           />
           <Column
-            columnKey="win-ratio"
-            header={<Cell>Win Ratio</Cell>}
-            cell={this.cellWinRatioMapping}
+            columnKey="win-percentage"
+            header={<Cell>Win Percentage</Cell>}
+            cell={this.cellWinPercentageMapping}
             flexGrow={1}
             width={50}
           />
@@ -115,61 +115,80 @@ class ScoreTable extends React.Component<Props, State> {
     });
   };
 
-  private cellNameMapping = (props: any) => {
+  private cellNameMapping = (cellProps: ColumnCellProps) => {
     return (
-      <Cell className={`tt-name-${props.rowIndex}`}>
+      <Cell className={`tt-name-${cellProps.rowIndex}`}>
         {this.props.scores.size > 0
-          ? Array.from(this.props.scores.values())[props.rowIndex].name
+          ? Array.from(this.props.scores.values())[cellProps.rowIndex].name
           : "-"}
       </Cell>
     );
   };
 
-  private cellWinsMapping = (props: any) => {
+  private cellWinsMapping = (cellProps: ColumnCellProps) => {
     return (
-      <Cell className={`tt-wins-${props.rowIndex}`}>
+      <Cell className={`tt-wins-${cellProps.rowIndex}`}>
         {this.props.scores.size > 0
-          ? Array.from(this.props.scores.values())[props.rowIndex].wins
+          ? Array.from(this.props.scores.values())[cellProps.rowIndex].wins
           : "-"}
       </Cell>
     );
   };
 
-  private cellPlayedMapping = (props: any) => {
+  private cellPlayedMapping = (cellProps: ColumnCellProps) => {
     return (
-      <Cell className={`tt-played-${props.rowIndex}`}>
+      <Cell className={`tt-played-${cellProps.rowIndex}`}>
         {this.props.scores.size > 0
-          ? Array.from(this.props.scores.values())[props.rowIndex].played
+          ? Array.from(this.props.scores.values())[cellProps.rowIndex].played
           : "-"}
       </Cell>
     );
   };
 
-  private cellWinRatioMapping = (props: any) => {
+  private cellWinPercentageMapping = (cellProps: ColumnCellProps) => {
+    const score: Score | undefined = this.scoreByIndex(cellProps.rowIndex);
+
+    const winPercentage: string = this.winPercentageFromScore(score);
+
     return (
-      <Cell className={`tt-win-ratio-${props.rowIndex}`}>
-        {this.props.scores.size > 0 &&
-        Array.from(this.props.scores.values())[props.rowIndex].played > 0
-          ? `${((Array.from(this.props.scores.values())[props.rowIndex].wins /
-              Array.from(this.props.scores.values())[props.rowIndex].played) *
-              100).toFixed(0)}%`
-          : "-"}
+      <Cell
+        className={`tt-win-ratio-${cellProps.rowIndex}`}
+        style={{
+          color:
+            winPercentage.length > 0
+              ? `hsl(${Number.parseInt(winPercentage, 10) * 1.2},100%,50%)`
+              : "black"
+        }}
+      >
+        {winPercentage.length > 0 ? `${winPercentage}%` : "-"}
       </Cell>
     );
   };
 
-  private cellRoundParticipantMapping = (props: any) => {
+  private scoreByIndex(index: number): Score | undefined {
+    return this.props.scores.size > 0
+      ? Array.from(this.props.scores.values())[index]
+      : undefined;
+  }
+
+  private winPercentageFromScore(score: Score | undefined): string {
+    return score && score.played > 0
+      ? ((score.wins / score.played) * 100).toFixed(0)
+      : "";
+  }
+
+  private cellRoundParticipantMapping = (cellProps: ColumnCellProps) => {
     return (
-      <Cell className={`tt-round-participant-${props.rowIndex}`}>
+      <Cell className={`tt-round-participant-${cellProps.rowIndex}`}>
         {this.props.scores.size > 0 ? (
           <input
             type="checkbox"
             checked={
-              Array.from(this.props.scores.values())[props.rowIndex].isInGame ||
-              false
+              Array.from(this.props.scores.values())[cellProps.rowIndex]
+                .isInGame || false
             }
             onChange={this.onToggleParticipation(
-              Array.from(this.props.scores.values())[props.rowIndex].id
+              Array.from(this.props.scores.values())[cellProps.rowIndex].id
             )}
           />
         ) : (
@@ -179,18 +198,18 @@ class ScoreTable extends React.Component<Props, State> {
     );
   };
 
-  private cellRoundWinnerMapping = (props: any) => {
+  private cellRoundWinnerMapping = (cellProps: ColumnCellProps) => {
     return (
-      <Cell className={`tt-round-winner-${props.rowIndex}`}>
+      <Cell className={`tt-round-winner-${cellProps.rowIndex}`}>
         {this.props.scores.size > 0 ? (
           <input
             type="checkbox"
             checked={
-              Array.from(this.props.scores.values())[props.rowIndex].isWinner ||
-              false
+              Array.from(this.props.scores.values())[cellProps.rowIndex]
+                .isWinner || false
             }
             onChange={this.onToggleVictory(
-              Array.from(this.props.scores.values())[props.rowIndex].id
+              Array.from(this.props.scores.values())[cellProps.rowIndex].id
             )}
           />
         ) : (
