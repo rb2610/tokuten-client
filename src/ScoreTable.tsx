@@ -150,9 +150,9 @@ class ScoreTable extends React.Component<Props, State> {
       <Cell className={`tt-win-ratio-${props.rowIndex}`}>
         {this.props.scores.size > 0 &&
         Array.from(this.props.scores.values())[props.rowIndex].played > 0
-          ? `${(Array.from(this.props.scores.values())[props.rowIndex].wins /
+          ? `${((Array.from(this.props.scores.values())[props.rowIndex].wins /
               Array.from(this.props.scores.values())[props.rowIndex].played) *
-              100}%`
+              100).toFixed(0)}%`
           : "-"}
       </Cell>
     );
