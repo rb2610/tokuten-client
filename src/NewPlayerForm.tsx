@@ -45,9 +45,7 @@ class NewPlayerForm extends React.Component<Props, State> {
     event.preventDefault();
     axios
       .post(
-        `${apiUrl}/players?groupId=${this.props.selectedGroupId}&gameId=${
-          this.props.selectedGameId
-        }`,
+        `${apiUrl}/players?groupId=${this.props.selectedGroupId}`,
         {
           name: this.state.formName
         }

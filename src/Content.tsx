@@ -20,6 +20,7 @@ type Props = {};
 type State = {
   games: Game[];
   groups: Group[];
+  persistPlayers: boolean;
   scores: Map<number, Score>;
   selectedGameId: number;
   selectedGroupId: number;
@@ -29,6 +30,7 @@ class Content extends React.Component<Props, State> {
   public state = {
     games: Array<Game>(),
     groups: Array<Group>(),
+    persistPlayers: false,
     scores: new Map<number, Score>(),
     selectedGameId: 1,
     selectedGroupId: 1
@@ -63,14 +65,18 @@ class Content extends React.Component<Props, State> {
                   onSelectedGroupChange={this.onSelectedGroupChange}
                 />
                 <NewPlayerForm
-                  newPlayerCallback={this.loadScoresCallback}
+                  newPlayerCallback={this.loadScores}
                   selectedGameId={this.state.selectedGameId}
                   selectedGroupId={this.state.selectedGroupId}
                 />
-                <NewGameForm newGameCallback={this.loadGamesCallback} />
-                <NewGroupForm newGroupCallback={this.loadGroupsCallback} />
+                <NewGameForm newGameCallback={this.loadGames} />
+                <NewGroupForm newGroupCallback={this.loadGroups} />
                 <NewRoundForm
-                  newRoundCallback={this.loadScoresCallback}
+                  newRoundCallback={this.loadScores}
+                  persistPlayers={this.state.persistPlayers}
+                  changePersistPlayersCallback={
+                    this.changePersistPlayersCallback
+                  }
                   selectedGameId={this.state.selectedGameId}
                   selectedGroupId={this.state.selectedGroupId}
                   scores={this.state.scores}
@@ -90,7 +96,7 @@ class Content extends React.Component<Props, State> {
     );
   }
 
-  private loadScores() {
+  private loadScores = () => {
     axios
       .get(
         `${apiUrl}/scores/group/${this.state.selectedGroupId}/game/${
@@ -98,15 +104,28 @@ class Content extends React.Component<Props, State> {
         }`
       )
       .then(response => {
-        const responseData: Map<number, Score> = new Map(
-          response.data.data
-            .sort(
-              (row1: Score, row2: Score) =>
-                (row2.wins / row2.played || -Number.MAX_SAFE_INTEGER) -
-                (row1.wins / row1.played || -Number.MAX_SAFE_INTEGER)
-            )
-            .map((row: Score) => [row.id, row])
-        );
+        let responseData: Map<number, Score>;
+        if (this.state.persistPlayers && this.state.scores.size > 0) {
+          const playersInGame: number[] = this.playersInGame(this.state.scores);
+
+          responseData = new Map(
+            response.data.data
+              .sort(this.sortByWinRatio)
+              .map(
+                (row: Score) =>
+                  [
+                    row.id,
+                    { ...row, isInGame: playersInGame.includes(row.id) }
+                  ] as [number, Score]
+              )
+          );
+        } else {
+          responseData = new Map(
+            response.data.data
+              .sort(this.sortByWinRatio)
+              .map((row: Score) => [row.id, row])
+          );
+        }
 
         if (responseData) {
           this.setState({
@@ -114,11 +133,19 @@ class Content extends React.Component<Props, State> {
           });
         }
       });
+  };
+
+  private playersInGame(scores: Map<number, Score>): number[] {
+    return [...scores]
+      .filter((score: [number, Score]) => score[1].isInGame)
+      .map((score: [number, Score]) => score[0]);
   }
 
-  private loadScoresCallback = () => this.loadScores();
+  private sortByWinRatio = (row1: Score, row2: Score) =>
+    (row2.wins / row2.played || -Number.MAX_SAFE_INTEGER) -
+    (row1.wins / row1.played || -Number.MAX_SAFE_INTEGER);
 
-  private loadGames() {
+  private loadGames = () => {
     axios.get(`${apiUrl}/games`).then(response => {
       const responseData: Game[] = response.data.data;
 
@@ -126,21 +153,19 @@ class Content extends React.Component<Props, State> {
         this.setState({ games: responseData });
       }
     });
-  }
+  };
 
-  private loadGamesCallback = () => this.loadGames();
-
-  private loadGroups() {
+  private loadGroups = () => {
     axios.get(`${apiUrl}/groups`).then(response => {
       const responseData: Group[] = response.data.data;
 
       if (responseData) {
-        this.setState({ groups: responseData });
+        this.setState({
+          groups: responseData
+        });
       }
     });
-  }
-
-  private loadGroupsCallback = () => this.loadGroups();
+  };
 
   private onSelectedGameChange = (event: ChangeEvent<HTMLSelectElement>) => {
     if (event.target) {
@@ -162,6 +187,12 @@ class Content extends React.Component<Props, State> {
         this.loadScores
       );
     }
+  };
+
+  private changePersistPlayersCallback = (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    this.setState({ persistPlayers: event.target.checked });
   };
 }
 
