@@ -4,6 +4,7 @@ import axios from "axios";
 import * as React from "react";
 import { ChangeEvent } from "react";
 import ContainerDimensions from "react-container-dimensions";
+import { RouteComponentProps } from "react-router";
 import Game from "./dataTypes/Game";
 import Group from "./dataTypes/Group";
 import Score from "./dataTypes/Score";
@@ -15,8 +16,6 @@ import NewRoundForm from "./NewRoundForm";
 import ScoreTable from "./ScoreTable";
 import { apiUrl } from "./util/Constants";
 
-type Props = {};
-
 type State = {
   games: Game[];
   groups: Group[];
@@ -26,14 +25,17 @@ type State = {
   selectedGroupId: number;
 };
 
-class Content extends React.Component<Props, State> {
+class Content extends React.Component<RouteComponentProps<any>, State> {
   public state = {
     games: Array<Game>(),
     groups: Array<Group>(),
     persistPlayers: false,
     scores: new Map<number, Score>(),
-    selectedGameId: 1,
-    selectedGroupId: 1
+    selectedGameId: Number.parseInt(this.getUrlParams().get("game") || "1", 10),
+    selectedGroupId: Number.parseInt(
+      this.getUrlParams().get("group") || "1",
+      10
+    )
   };
 
   public componentDidMount() {
@@ -169,6 +171,10 @@ class Content extends React.Component<Props, State> {
 
   private onSelectedGameChange = (event: ChangeEvent<HTMLSelectElement>) => {
     if (event.target) {
+      const values = this.getUrlParams();
+      values.set("game", event.target.value);
+      this.props.history.push({ search: values.toString() });
+
       this.setState(
         {
           selectedGameId: Number.parseInt(event.target.value, 10)
@@ -180,6 +186,10 @@ class Content extends React.Component<Props, State> {
 
   private onSelectedGroupChange = (event: ChangeEvent<HTMLSelectElement>) => {
     if (event.target) {
+      const values = this.getUrlParams();
+      values.set("group", event.target.value);
+      this.props.history.push({ search: values.toString() });
+
       this.setState(
         {
           selectedGroupId: Number.parseInt(event.target.value, 10)
@@ -194,6 +204,13 @@ class Content extends React.Component<Props, State> {
   ) => {
     this.setState({ persistPlayers: event.target.checked });
   };
+
+  private getUrlParams(): URLSearchParams {
+    if (!this.props.location.search) {
+      return new URLSearchParams();
+    }
+    return new URLSearchParams(this.props.location.search);
+  }
 }
 
 export default Content;
