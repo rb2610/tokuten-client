@@ -44,6 +44,33 @@ class Content extends React.Component<RouteComponentProps<any>, State> {
     this.loadScores();
   }
 
+  public componentDidUpdate() {
+    const game: number = Number.parseInt(
+      this.getUrlParams().get("game") || "1",
+      10
+    );
+    const group: number = Number.parseInt(
+      this.getUrlParams().get("group") || "1",
+      10
+    );
+
+    let stateChanged: boolean = false;
+
+    if (this.state.selectedGameId !== game) {
+      this.setState({ selectedGameId: game });
+      stateChanged = true;
+    }
+
+    if (this.state.selectedGroupId !== group) {
+      this.setState({ selectedGroupId: group });
+      stateChanged = true;
+    }
+
+    if (stateChanged) {
+      this.loadScores();
+    }
+  }
+
   public render() {
     return (
       <div
@@ -174,13 +201,6 @@ class Content extends React.Component<RouteComponentProps<any>, State> {
       const values = this.getUrlParams();
       values.set("game", event.target.value);
       this.props.history.push({ search: values.toString() });
-
-      this.setState(
-        {
-          selectedGameId: Number.parseInt(event.target.value, 10)
-        },
-        this.loadScores
-      );
     }
   };
 
@@ -189,13 +209,6 @@ class Content extends React.Component<RouteComponentProps<any>, State> {
       const values = this.getUrlParams();
       values.set("group", event.target.value);
       this.props.history.push({ search: values.toString() });
-
-      this.setState(
-        {
-          selectedGroupId: Number.parseInt(event.target.value, 10)
-        },
-        this.loadScores
-      );
     }
   };
 
