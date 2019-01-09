@@ -49,25 +49,18 @@ class Content extends React.Component<RouteComponentProps<any>, State> {
       this.getUrlParams().get("game") || "1",
       10
     );
+
+    if (this.state.selectedGameId !== game) {
+      this.setState({ selectedGameId: game }, this.loadScores);
+    }
+
     const group: number = Number.parseInt(
       this.getUrlParams().get("group") || "1",
       10
     );
 
-    let stateChanged: boolean = false;
-
-    if (this.state.selectedGameId !== game) {
-      this.setState({ selectedGameId: game });
-      stateChanged = true;
-    }
-
     if (this.state.selectedGroupId !== group) {
-      this.setState({ selectedGroupId: group });
-      stateChanged = true;
-    }
-
-    if (stateChanged) {
-      this.loadScores();
+      this.setState({ selectedGroupId: group }, this.loadScores);
     }
   }
 
