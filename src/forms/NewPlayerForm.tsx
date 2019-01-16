@@ -3,32 +3,34 @@
 import axios from "axios";
 import * as React from "react";
 import { ChangeEvent } from "react";
-import { apiUrl } from "./util/Constants";
+import { apiUrl } from "../util/Constants";
 
 type Props = {
-  newGroupCallback(): void;
+  selectedGameId: number;
+  selectedGroupId: number;
+  newPlayerCallback(): void;
 };
 
 type State = {
   formName: string;
-};
+}
 
-class NewGroupForm extends React.Component<Props, State> {
+class NewPlayerForm extends React.Component<Props, State> {
   public state = {
     formName: ""
   };
 
   public render() {
     return (
-      <form onSubmit={this.onNewGroupSubmit}>
+      <form onSubmit={this.onNewPlayerSubmit}>
         <input
-          id="new-group-name-field"
+          id="new-player-name-field"
           type="text"
           value={this.state.formName}
-          placeholder="Group Name"
+          placeholder="Player Name"
           onChange={this.onNameChange}
         />
-        <input id="new-group-submit" type="submit" value="Add Group" />
+        <input id="new-player-submit" type="submit" value="Add Player" />
       </form>
     );
   }
@@ -39,17 +41,20 @@ class NewGroupForm extends React.Component<Props, State> {
     }
   };
 
-  private onNewGroupSubmit = (event: any) => {
+  private onNewPlayerSubmit = (event: any) => {
     event.preventDefault();
     axios
-      .post(`${apiUrl}/groups`, {
-        name: this.state.formName
-      })
+      .post(
+        `${apiUrl}/players?groupId=${this.props.selectedGroupId}`,
+        {
+          name: this.state.formName
+        }
+      )
       .then(() => {
         this.setState({ formName: "" });
-        this.props.newGroupCallback();
+        this.props.newPlayerCallback();
       });
   };
 }
 
-export default NewGroupForm;
+export default NewPlayerForm;

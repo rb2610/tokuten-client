@@ -8,15 +8,18 @@ import { RouteComponentProps } from "react-router";
 import Game from "./dataTypes/Game";
 import Group from "./dataTypes/Group";
 import Score from "./dataTypes/Score";
+import FancyGraph from "./FancyGraph";
+import NewGameForm from "./forms/NewGameForm";
+import NewGroupForm from "./forms/NewGroupForm";
+import NewPlayerForm from "./forms/NewPlayerForm";
+import NewRoundForm from "./forms/NewRoundForm";
 import NavSelectors from "./NavSelectors";
-import NewGameForm from "./NewGameForm";
-import NewGroupForm from "./NewGroupForm";
-import NewPlayerForm from "./NewPlayerForm";
-import NewRoundForm from "./NewRoundForm";
 import ScoreTable from "./ScoreTable";
 import { apiUrl } from "./util/Constants";
+import { View } from './util/Enums';
 
 type State = {
+  currentView: View;
   games: Game[];
   groups: Group[];
   persistPlayers: boolean;
@@ -27,6 +30,7 @@ type State = {
 
 class Content extends React.Component<RouteComponentProps<any>, State> {
   public state = {
+    currentView: View.Graph,
     games: Array<Game>(),
     groups: Array<Group>(),
     persistPlayers: false,
@@ -79,6 +83,7 @@ class Content extends React.Component<RouteComponentProps<any>, State> {
             {({ height, width }) => (
               <div>
                 <NavSelectors
+                  currentView={this.state.currentView}
                   games={this.state.games}
                   groups={this.state.groups}
                   selectedGameId={this.state.selectedGameId}
@@ -103,13 +108,9 @@ class Content extends React.Component<RouteComponentProps<any>, State> {
                   selectedGroupId={this.state.selectedGroupId}
                   scores={this.state.scores}
                 />
-                <ScoreTable
-                  height={height}
-                  width={width}
-                  scores={this.state.scores}
-                  selectedGameId={this.state.selectedGameId}
-                  selectedGroupId={this.state.selectedGroupId}
-                />
+                {
+                  this.view(height, width)
+                }
               </div>
             )}
           </ContainerDimensions>
@@ -117,6 +118,20 @@ class Content extends React.Component<RouteComponentProps<any>, State> {
       </div>
     );
   }
+
+  private view(height: number, width: number) {
+    switch (this.state.currentView) {
+      case View.Graph:
+        return <FancyGraph height={height} width={width} scores={this.state.scores} selectedGameId={this.state.selectedGameId} selectedGroupId={this.state.selectedGroupId} />;
+      default:
+        return <ScoreTable
+          height={height}
+          width={width}
+          scores={this.state.scores}
+          selectedGameId={this.state.selectedGameId}
+          selectedGroupId={this.state.selectedGroupId} />
+    }
+  } 
 
   private loadScores = () => {
     axios

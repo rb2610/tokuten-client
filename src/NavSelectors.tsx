@@ -5,8 +5,10 @@ import { SFC } from "react";
 import { ChangeEvent } from "react";
 import Game from "./dataTypes/Game";
 import Group from "./dataTypes/Group";
+import { View } from './util/Enums';
 
 type Props = {
+  currentView: View;
   games: Game[];
   groups: Group[];
   selectedGameId: number;
@@ -38,6 +40,16 @@ const NavSelectors: SFC<Props> = props => {
           </option>
         ))}
       </select>
+      {/* <select
+        value={props.currentView}
+        onChange={props.onSelectedViewChange}
+      >
+        {props.games.map(game => (
+          <option key={game.id} value={game.id}>
+            {game.name}
+          </option>
+        ))}
+      </select> */}
     </div>
   );
 };

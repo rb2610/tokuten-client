@@ -3,7 +3,7 @@
 import axios from "axios";
 import * as React from "react";
 import { ChangeEvent } from "react";
-import { apiUrl } from "./util/Constants";
+import { apiUrl } from "../util/Constants";
 
 type Props = {
   newGameCallback(): void;
