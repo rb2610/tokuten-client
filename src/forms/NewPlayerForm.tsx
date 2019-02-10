@@ -1,9 +1,8 @@
 "use strict";
 
 import axios from "axios";
-import * as React from "react";
-import { ChangeEvent } from "react";
-import { apiUrl } from "./util/Constants";
+import React, { ChangeEvent, Component } from "react";
+import { apiUrl } from "../util/Constants";
 
 type Props = {
   selectedGameId: number;
@@ -13,9 +12,9 @@ type Props = {
 
 type State = {
   formName: string;
-}
+};
 
-class NewPlayerForm extends React.Component<Props, State> {
+class NewPlayerForm extends Component<Props, State> {
   public state = {
     formName: ""
   };
@@ -46,9 +45,8 @@ class NewPlayerForm extends React.Component<Props, State> {
     axios
       .post(
         `${apiUrl}/players?groupId=${this.props.selectedGroupId}`,
-        {
-          name: this.state.formName
-        }
+        { name: this.state.formName },
+        { withCredentials: true }
       )
       .then(() => {
         this.setState({ formName: "" });

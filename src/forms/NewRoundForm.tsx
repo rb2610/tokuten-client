@@ -1,13 +1,12 @@
 "use strict";
 
 import axios from "axios";
-import * as React from "react";
-import { ChangeEvent } from "react";
-import Score from "./dataTypes/Score";
-import { apiUrl } from "./util/Constants";
+import React, { ChangeEvent, Component } from "react";
+import Score from "../dataTypes/Score";
+import { apiUrl } from "../util/Constants";
 
 type Props = {
-  persistPlayers: boolean
+  persistPlayers: boolean;
   scores: Map<number, Score>;
   selectedGameId: number;
   selectedGroupId: number;
@@ -17,7 +16,7 @@ type Props = {
 
 type State = {};
 
-class NewRoundForm extends React.Component<Props, State> {
+class NewRoundForm extends Component<Props, State> {
   public render() {
     return (
       <div>
@@ -52,7 +51,8 @@ class NewRoundForm extends React.Component<Props, State> {
               id: participant.id,
               is_winner: participant.isWinner || false // TODO: Make server tolerant
             }))
-        }
+        },
+        { withCredentials: true }
       )
       .then(() => {
         this.props.newRoundCallback();

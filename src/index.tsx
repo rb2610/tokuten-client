@@ -1,9 +1,9 @@
 "use strict";
 
-import * as React from "react";
-import * as ReactDOM from "react-dom";
+import React from "react";
+import ReactDOM from "react-dom";
 import registerServiceWorker from "./registerServiceWorker";
-import TokutenRouter from "./TokutenRouter";
+import TokutenRouter from "./routing/TokutenRouter";
 
 require("./styles/index.css");
 

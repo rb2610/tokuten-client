@@ -1,9 +1,8 @@
 "use strict";
 
 import axios from "axios";
-import * as React from "react";
-import { ChangeEvent } from "react";
-import { apiUrl } from "./util/Constants";
+import React, { ChangeEvent, Component } from "react";
+import { apiUrl } from "../util/Constants";
 
 type Props = {
   newGroupCallback(): void;
@@ -13,7 +12,7 @@ type State = {
   formName: string;
 };
 
-class NewGroupForm extends React.Component<Props, State> {
+class NewGroupForm extends Component<Props, State> {
   public state = {
     formName: ""
   };
@@ -42,9 +41,11 @@ class NewGroupForm extends React.Component<Props, State> {
   private onNewGroupSubmit = (event: any) => {
     event.preventDefault();
     axios
-      .post(`${apiUrl}/groups`, {
-        name: this.state.formName
-      })
+      .post(
+        `${apiUrl}/groups`,
+        { name: this.state.formName },
+        { withCredentials: true }
+      )
       .then(() => {
         this.setState({ formName: "" });
         this.props.newGroupCallback();

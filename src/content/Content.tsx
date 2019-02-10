@@ -5,16 +5,16 @@ import * as React from "react";
 import { ChangeEvent } from "react";
 import ContainerDimensions from "react-container-dimensions";
 import { RouteComponentProps } from "react-router";
-import Game from "./dataTypes/Game";
-import Group from "./dataTypes/Group";
-import Score from "./dataTypes/Score";
-import NavSelectors from "./NavSelectors";
-import NewGameForm from "./NewGameForm";
-import NewGroupForm from "./NewGroupForm";
-import NewPlayerForm from "./NewPlayerForm";
-import NewRoundForm from "./NewRoundForm";
+import Game from "../dataTypes/Game";
+import Group from "../dataTypes/Group";
+import Score from "../dataTypes/Score";
+import NewGameForm from "../forms/NewGameForm";
+import NewGroupForm from "../forms/NewGroupForm";
+import NewPlayerForm from "../forms/NewPlayerForm";
+import NewRoundForm from "../forms/NewRoundForm";
+import NavSelectors from "../navigation/NavSelectors";
+import { apiUrl } from "../util/Constants";
 import ScoreTable from "./ScoreTable";
-import { apiUrl } from "./util/Constants";
 
 type State = {
   games: Game[];
@@ -66,53 +66,56 @@ class Content extends React.Component<RouteComponentProps<any>, State> {
 
   public render() {
     return (
-      <div
-        style={{
-          display: "flex",
-          flexFlow: "column",
-          height: "100%",
-          width: "100%"
-        }}
-      >
-        <div style={{ flex: "1 1 auto" }}>
-          <ContainerDimensions>
-            {({ height, width }) => (
-              <div>
-                <NavSelectors
-                  games={this.state.games}
-                  groups={this.state.groups}
-                  selectedGameId={this.state.selectedGameId}
-                  selectedGroupId={this.state.selectedGroupId}
-                  onSelectedGameChange={this.onSelectedGameChange}
-                  onSelectedGroupChange={this.onSelectedGroupChange}
-                />
-                <NewPlayerForm
-                  newPlayerCallback={this.loadScores}
-                  selectedGameId={this.state.selectedGameId}
-                  selectedGroupId={this.state.selectedGroupId}
-                />
-                <NewGameForm newGameCallback={this.loadGames} />
-                <NewGroupForm newGroupCallback={this.loadGroups} />
-                <NewRoundForm
-                  newRoundCallback={this.loadScores}
-                  persistPlayers={this.state.persistPlayers}
-                  changePersistPlayersCallback={
-                    this.changePersistPlayersCallback
-                  }
-                  selectedGameId={this.state.selectedGameId}
-                  selectedGroupId={this.state.selectedGroupId}
-                  scores={this.state.scores}
-                />
-                <ScoreTable
-                  height={height}
-                  width={width}
-                  scores={this.state.scores}
-                  selectedGameId={this.state.selectedGameId}
-                  selectedGroupId={this.state.selectedGroupId}
-                />
-              </div>
-            )}
-          </ContainerDimensions>
+      <div>
+        <p className="main-intro">Scores and stuff.</p>
+        <div
+          style={{
+            display: "flex",
+            flexFlow: "column",
+            height: "100%",
+            width: "100%"
+          }}
+        >
+          <div style={{ flex: "1 1 auto" }}>
+            <ContainerDimensions>
+              {({ height, width }) => (
+                <div>
+                  <NavSelectors
+                    games={this.state.games}
+                    groups={this.state.groups}
+                    selectedGameId={this.state.selectedGameId}
+                    selectedGroupId={this.state.selectedGroupId}
+                    onSelectedGameChange={this.onSelectedGameChange}
+                    onSelectedGroupChange={this.onSelectedGroupChange}
+                  />
+                  <NewPlayerForm
+                    newPlayerCallback={this.loadScores}
+                    selectedGameId={this.state.selectedGameId}
+                    selectedGroupId={this.state.selectedGroupId}
+                  />
+                  <NewGameForm newGameCallback={this.loadGames} />
+                  <NewGroupForm newGroupCallback={this.loadGroups} />
+                  <NewRoundForm
+                    newRoundCallback={this.loadScores}
+                    persistPlayers={this.state.persistPlayers}
+                    changePersistPlayersCallback={
+                      this.changePersistPlayersCallback
+                    }
+                    selectedGameId={this.state.selectedGameId}
+                    selectedGroupId={this.state.selectedGroupId}
+                    scores={this.state.scores}
+                  />
+                  <ScoreTable
+                    height={height}
+                    width={width}
+                    scores={this.state.scores}
+                    selectedGameId={this.state.selectedGameId}
+                    selectedGroupId={this.state.selectedGroupId}
+                  />
+                </div>
+              )}
+            </ContainerDimensions>
+          </div>
         </div>
       </div>
     );
@@ -123,7 +126,8 @@ class Content extends React.Component<RouteComponentProps<any>, State> {
       .get(
         `${apiUrl}/scores/group/${this.state.selectedGroupId}/game/${
           this.state.selectedGameId
-        }`
+        }`,
+        { withCredentials: true }
       )
       .then(response => {
         let responseData: Map<number, Score>;
@@ -168,17 +172,17 @@ class Content extends React.Component<RouteComponentProps<any>, State> {
     (row1.wins / row1.played || -Number.MAX_SAFE_INTEGER);
 
   private loadGames = () => {
-    axios.get(`${apiUrl}/games`).then(response => {
+    axios.get(`${apiUrl}/games`, { withCredentials: true }).then(response => {
       const responseData: Game[] = response.data.data;
 
       if (responseData) {
         this.setState({ games: responseData });
       }
-    });
+    })
   };
 
   private loadGroups = () => {
-    axios.get(`${apiUrl}/groups`).then(response => {
+    axios.get(`${apiUrl}/groups`, { withCredentials: true }).then(response => {
       const responseData: Group[] = response.data.data;
 
       if (responseData) {

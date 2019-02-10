@@ -1,10 +1,9 @@
 "use strict";
 
-import * as React from "react";
-import { SFC } from "react";
+import React, { SFC } from "react";
 import { ChangeEvent } from "react";
-import Game from "./dataTypes/Game";
-import Group from "./dataTypes/Group";
+import Game from "../dataTypes/Game";
+import Group from "../dataTypes/Group";
 
 type Props = {
   games: Game[];

@@ -1,11 +1,11 @@
 "use strict";
 
 import { Cell, Column, ColumnCellProps, Table } from "fixed-data-table-2";
-import * as React from "react";
-import Score from "./dataTypes/Score";
+import React, { Component } from "react";
+import Score from "../dataTypes/Score";
 
 require("fixed-data-table-2/dist/fixed-data-table.min.css");
-require("./styles/TestTable.css");
+require("../styles/TestTable.css");
 
 type Props = {
   height: number;
@@ -17,7 +17,7 @@ type Props = {
 
 type State = {};
 
-class ScoreTable extends React.Component<Props, State> {
+class ScoreTable extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
   }

@@ -1,9 +1,8 @@
 "use strict";
 
 import axios from "axios";
-import * as React from "react";
-import { ChangeEvent } from "react";
-import { apiUrl } from "./util/Constants";
+import React, { ChangeEvent, Component } from "react";
+import { apiUrl } from "../util/Constants";
 
 type Props = {
   newGameCallback(): void;
@@ -13,7 +12,7 @@ type State = {
   formName: string;
 };
 
-class NewGameForm extends React.Component<Props, State> {
+class NewGameForm extends Component<Props, State> {
   public state = {
     formName: ""
   };
@@ -42,9 +41,11 @@ class NewGameForm extends React.Component<Props, State> {
   private onNewGameSubmit = (event: any) => {
     event.preventDefault();
     axios
-      .post(`${apiUrl}/games`, {
-        name: this.state.formName
-      })
+      .post(
+        `${apiUrl}/games`,
+        { name: this.state.formName },
+        { withCredentials: true }
+      )
       .then(() => {
         this.setState({ formName: "" });
         this.props.newGameCallback();
