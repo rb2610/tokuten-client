@@ -65,6 +65,7 @@
     "react-container-dimensions": "^1.4.1",
     "react-dev-utils": "^5.0.2",
     "react-dom": "^16.5.2",
+    "react-icons": "^3.4.0",
     "react-router-dom": "^4.3.1",
     "resolve": "1.6.0",
     "serve": "^10.0.2",

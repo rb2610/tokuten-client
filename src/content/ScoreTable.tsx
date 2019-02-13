@@ -1,11 +1,18 @@
 "use strict";
 
 import { Cell, Column, ColumnCellProps, Table } from "fixed-data-table-2";
-import React, { Component } from "react";
+import React, { Component, ReactElement } from "react";
+import {
+  MdCheckBox,
+  MdCheckBoxOutlineBlank,
+  MdIndeterminateCheckBox
+} from "react-icons/md";
 import Score from "../dataTypes/Score";
 
 require("fixed-data-table-2/dist/fixed-data-table.min.css");
 require("../styles/TestTable.css");
+
+const checkSize: string = "2em";
 
 type Props = {
   height: number;
@@ -87,28 +94,28 @@ class ScoreTable extends Component<Props, State> {
     );
   }
 
-  private onToggleParticipation = (playerId: number) => (event: any) => {
+  private onToggleParticipation = (playerId: number) => () => {
     const row: Score | undefined = this.props.scores.get(playerId);
 
     if (row === undefined) {
       return;
     }
 
-    row.isInGame = event.target.checked;
+    row.isInGame = !row.isInGame;
 
     this.setState({
       data: this.props.scores.set(playerId, row)
     });
   };
 
-  private onToggleVictory = (playerId: number) => (event: any) => {
+  private onToggleVictory = (playerId: number) => () => {
     const row: Score | undefined = this.props.scores.get(playerId);
 
     if (row === undefined) {
       return;
     }
 
-    row.isWinner = event.target.checked;
+    row.isWinner = !row.isWinner;
 
     this.setState({
       data: this.props.scores.set(playerId, row)
@@ -177,44 +184,46 @@ class ScoreTable extends Component<Props, State> {
       : "";
   }
 
+  private generateCheckbox = (
+    checkCriterion: string,
+    rowIndex: number
+  ): ReactElement<any> => {
+    if (this.props.scores.size <= 0) {
+      return <MdIndeterminateCheckBox size={checkSize} />;
+    }
+
+    if (
+      Array.from(this.props.scores.values())[rowIndex][checkCriterion] ||
+      false
+    ) {
+      return <MdCheckBox size={checkSize} />;
+    } else {
+      return <MdCheckBoxOutlineBlank size={checkSize} />;
+    }
+  };
+
   private cellRoundParticipantMapping = (cellProps: ColumnCellProps) => {
     return (
-      <Cell className={`tt-round-participant-${cellProps.rowIndex}`}>
-        {this.props.scores.size > 0 ? (
-          <input
-            type="checkbox"
-            checked={
-              Array.from(this.props.scores.values())[cellProps.rowIndex]
-                .isInGame || false
-            }
-            onChange={this.onToggleParticipation(
-              Array.from(this.props.scores.values())[cellProps.rowIndex].id
-            )}
-          />
-        ) : (
-          "-"
+      <Cell
+        className={`tt-round-participant-${cellProps.rowIndex} fill-cell`}
+        onClick={this.onToggleParticipation(
+          Array.from(this.props.scores.values())[cellProps.rowIndex].id
         )}
+      >
+        {this.generateCheckbox("isInGame", cellProps.rowIndex)}
       </Cell>
     );
   };
 
   private cellRoundWinnerMapping = (cellProps: ColumnCellProps) => {
     return (
-      <Cell className={`tt-round-winner-${cellProps.rowIndex}`}>
-        {this.props.scores.size > 0 ? (
-          <input
-            type="checkbox"
-            checked={
-              Array.from(this.props.scores.values())[cellProps.rowIndex]
-                .isWinner || false
-            }
-            onChange={this.onToggleVictory(
-              Array.from(this.props.scores.values())[cellProps.rowIndex].id
-            )}
-          />
-        ) : (
-          "-"
+      <Cell
+        className={`tt-round-winner-${cellProps.rowIndex} fill-cell`}
+        onClick={this.onToggleVictory(
+          Array.from(this.props.scores.values())[cellProps.rowIndex].id
         )}
+      >
+        {this.generateCheckbox("isWinner", cellProps.rowIndex)}
       </Cell>
     );
   };
